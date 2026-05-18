@@ -1,0 +1,296 @@
+/*!*************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[14].oneOf[12].use[2]!./node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[14].oneOf[12].use[3]!./app/globals.css ***!
+  \*************************************************************************************************************************************************************************************************************************************************************/
+/* ── Reset ─────────────────────────────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* ── GVC Brand Variables ───────────────────────────────────────────────────── */
+:root {
+  /* Colors */
+  --gold:    #FFE048;
+  --black:   #050505;
+  --dark:    #121212;
+  --gray:    #1F1F1F;
+  --pink:    #FF6B9D;
+  --orange:  #FF5F1F;
+  --green:   #2EFF2E;
+
+  /* Fonts */
+  --font-brice:   'Brice', 'Georgia', serif;
+  --font-mundial: 'Mundial', 'Helvetica Neue', Arial, sans-serif;
+
+  /* Radii */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+
+  /* Transitions */
+  --transition: all 0.2s ease;
+}
+
+/* ── Base ──────────────────────────────────────────────────────────────────── */
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  background-color: var(--black);
+  color: #ffffff;
+  font-family: var(--font-mundial);
+  font-size: 16px;
+  line-height: 1.6;
+  min-height: 100vh;
+
+  /* Grid texture background */
+  background-image: url('/grid.svg');
+  background-repeat: repeat;
+  background-size: 40px 40px;
+
+  /* Gold gradient at bottom */
+  background-attachment: fixed;
+}
+
+body::after {
+  content: '';
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 300px;
+  background: linear-gradient(to top, #FFE04806 0%, transparent 100%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── Typography ────────────────────────────────────────────────────────────── */
+.font-display,
+[class*="font-display"] {
+  font-family: var(--font-brice);
+  font-weight: 900;
+}
+
+.font-body,
+[class*="font-body"] {
+  font-family: var(--font-mundial);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-brice);
+  font-weight: 900;
+  text-transform: uppercase;
+  line-height: 1.1;
+  letter-spacing: 0.02em;
+}
+
+/* ── Utility Classes ───────────────────────────────────────────────────────── */
+
+/* Gold shimmer text */
+.text-shimmer {
+  background: linear-gradient(
+    135deg,
+    #FFE048 0%,
+    #FF6B9D 35%,
+    #FFE048 65%,
+    #FF5F1F 100%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: shimmer 4s linear infinite;
+}
+
+/* Card with gold glow on hover */
+.card-glow {
+  background: var(--dark);
+  border: 1px solid var(--gray);
+  border-radius: var(--radius-lg);
+  transition: var(--transition);
+}
+
+.card-glow:hover {
+  box-shadow: 0 0 32px rgba(255, 224, 72, 0.15);
+  border-color: rgba(255, 224, 72, 0.2);
+  transform: translateY(-2px);
+}
+
+/* Floating ember particle */
+.ember {
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: var(--gold);
+  opacity: 0;
+  animation: floatEmber 6s ease-in infinite;
+  pointer-events: none;
+}
+
+/* Rising particles from bottom */
+.rising-particle {
+  position: fixed;
+  bottom: -8px;
+  width: 2px;
+  height: 2px;
+  border-radius: 50%;
+  background: var(--gold);
+  opacity: 0;
+  animation: floatEmber 8s ease-in infinite;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* ── Animations ────────────────────────────────────────────────────────────── */
+@keyframes shimmer {
+  0%   { background-position: 0% center; }
+  100% { background-position: 200% center; }
+}
+
+@keyframes floatEmber {
+  0%   { opacity: 0;   transform: translateY(0) scale(1); }
+  15%  { opacity: 0.9; }
+  85%  { opacity: 0.3; }
+  100% { opacity: 0;   transform: translateY(-90vh) scale(0.2); }
+}
+
+@keyframes wiggle {
+  0%   { transform: rotate(0deg); }
+  20%  { transform: rotate(-18deg); }
+  40%  { transform: rotate(18deg); }
+  60%  { transform: rotate(-10deg); }
+  80%  { transform: rotate(10deg); }
+  100% { transform: rotate(0deg); }
+}
+
+@keyframes fadeSlideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50%       { transform: translateX(-50%) translateY(10px); }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.3; }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes ticker {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+/* ── Responsive ────────────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  section > div[style*="grid-template-columns: repeat(3"] {
+    grid-template-columns: 1fr !important;
+  }
+  section > div[style*="grid-template-columns: 1fr 1fr"] {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* ── Shaka Icon ────────────────────────────────────────────────────────────── */
+.shaka:hover {
+  animation: wiggle 0.5s ease;
+}
+
+/* ── Scrollbar ─────────────────────────────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+::-webkit-scrollbar-track {
+  background: var(--black);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--gray);
+  border-radius: 2px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #2a2a2a;
+}
+
+/* ── Selection ─────────────────────────────────────────────────────────────── */
+::-moz-selection {
+  background: rgba(255, 224, 72, 0.25);
+  color: #fff;
+}
+::selection {
+  background: rgba(255, 224, 72, 0.25);
+  color: #fff;
+}
+
+/* ── Focus ─────────────────────────────────────────────────────────────────── */
+:focus-visible {
+  outline: 1px solid rgba(255, 224, 72, 0.4);
+  outline-offset: 2px;
+}
+
+/* ── Links ─────────────────────────────────────────────────────────────────── */
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* ── Inputs ────────────────────────────────────────────────────────────────── */
+input, textarea, select {
+  font-family: var(--font-mundial);
+  color: #fff;
+}
+
+input::-moz-placeholder, textarea::-moz-placeholder {
+  color: #333;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #333;
+}
+
+input:focus,
+textarea:focus {
+  outline: none;
+  border-color: rgba(255, 224, 72, 0.3) !important;
+}
+
+/* ── Buttons ───────────────────────────────────────────────────────────────── */
+button {
+  font-family: var(--font-mundial);
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+/* ── Tailwind font aliases (if using Tailwind) ─────────────────────────────── */
+/* Add to tailwind.config.ts:
+   theme: {
+     extend: {
+       fontFamily: {
+         display: ['var(--font-brice)', 'Georgia', 'serif'],
+         body:    ['var(--font-mundial)', 'Helvetica Neue', 'Arial', 'sans-serif'],
+       }
+     }
+   }
+*/
+
