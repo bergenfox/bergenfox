@@ -19,7 +19,7 @@ const STYLES = [
 const MOODS = ["TRIUMPHANT", "MYSTERIOUS", "CHAOTIC", "MELANCHOLIC", "EUPHORIC", "DEFIANT"];
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
-function getIpfsUrl(ipfs) {
+function getIpfsUrl(ipfs: string) {
   if (!ipfs) return null;
   return ipfs.replace("ipfs://", "https://ipfs.io/ipfs/");
 }
