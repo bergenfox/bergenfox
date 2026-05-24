@@ -62,7 +62,7 @@ Return JSON with this exact shape:
 
 Make the panels feel like a real comic — vary the pacing, use silent panels for tension, let the character's traits inform their personality and actions. The ${mood} mood should be felt throughout.`;
 
-  const response = await fetch("https://api.anthropic.com/v1/messages", {
+  const response = await fetch("/api/generate", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
