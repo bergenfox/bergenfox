@@ -21,14 +21,16 @@ export async function POST(req: NextRequest) {
     });
 
     const data = await res.json();
+    console.log("OpenAI response:", JSON.stringify(data));
 
     if (data.error) {
+      console.error("OpenAI error:", data.error);
       return NextResponse.json({ error: data.error.message }, { status: 500 });
     }
 
     return NextResponse.json({ url: data.data[0].url });
   } catch (err) {
-    console.error("Image generation error:", err);
-    return NextResponse.json({ error: "Image generation failed" }, { status: 500 });
+    console.error("Image route error:", err);
+    return NextResponse.json({ error: String(err) }, { status: 500 });
   }
 }
