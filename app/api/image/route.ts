@@ -20,17 +20,20 @@ export async function POST(req: NextRequest) {
       }),
     });
 
-    const data = await res.json();
-    console.log("OpenAI response:", JSON.stringify(data));
+    const text = await res.text();
+    console.log("OpenAI raw response:", text);
+    console.log("OpenAI status:", res.status);
+    console.log("API key exists:", !!process.env.OPENAI_API_KEY);
+    console.log("API key prefix:", process.env.OPENAI_API_KEY?.slice(0, 12));
 
+    const data = JSON.parse(text);
     if (data.error) {
-      console.error("OpenAI error:", data.error);
-      return NextResponse.json({ error: data.error.message }, { status: 500 });
+      return NextResponse.json({ error: data.error.message, code: data.error.code, type: data.error.type }, { status: 500 });
     }
 
     return NextResponse.json({ url: data.data[0].url });
   } catch (err) {
-    console.error("Image route error:", err);
+    console.error("Route error:", err);
     return NextResponse.json({ error: String(err) }, { status: 500 });
   }
 }
