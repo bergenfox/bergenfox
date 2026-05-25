@@ -107,9 +107,9 @@ async function generatePanelImage(prompt: string): Promise<string> {
   });
   const data = await response.json();
   if (data.error) throw new Error(data.error);
+  if (data.b64) return `data:image/png;base64,${data.b64}`;
   return data.url;
 }
-
 // ── Panel Card ────────────────────────────────────────────────────────────────
 function PanelCard({ panel, style, mood, traits, character, isWide }: any) {
   const [imageUrl, setImageUrl] = useState<string | null>(null);
