@@ -19,33 +19,72 @@ const MOODS = ["TRIUMPHANT", "MYSTERIOUS", "CHAOTIC", "MELANCHOLIC", "EUPHORIC",
 
 // ── Build DALL-E prompt for a panel ──────────────────────────────────────────
 function buildImagePrompt(panel: any, character: any, style: any, mood: string, traits: any) {
-  const type = traits?.Type || "human";
-  const hair = traits?.Hair || "short hair";
-  const body = traits?.Body || "casual outfit";
-  const face = traits?.Face || "expressive face";
+  const type = (traits?.Type || "human").toLowerCase();
+  const hair = (traits?.Hair || "short hair").toLowerCase();
+  const body = (traits?.Body || "casual outfit").toLowerCase();
+  const face = (traits?.Face || "").toLowerCase();
 
-  // Character description from traits
-  const charDesc = `a GVC NFT character who is ${type} with ${hair}, wearing ${body}, with ${face}`;
+  // Extract specific colors from traits
+  let skinColor = "warm beige";
+  if (type.includes("robot")) skinColor = "metallic silver-blue";
+  else if (type.includes("alien")) skinColor = "bright green";
+  else if (type.includes("zombie")) skinColor = "pale gray-green";
+  else if (type.includes("ape")) skinColor = "dark brown";
+  else if (type.includes("cat")) skinColor = "tan";
+
+  let hairColor = "dark brown";
+  if (hair.includes("gold") || hair.includes("blonde")) hairColor = "golden yellow";
+  else if (hair.includes("blue")) hairColor = "bright blue";
+  else if (hair.includes("red")) hairColor = "bright red";
+  else if (hair.includes("pink")) hairColor = "hot pink";
+  else if (hair.includes("white") || hair.includes("silver")) hairColor = "white silver";
+  else if (hair.includes("purple")) hairColor = "purple";
+  else if (hair.includes("green")) hairColor = "green";
+
+  let outfitColor = "dark gray";
+  if (body.includes("gold") || body.includes("yellow")) outfitColor = "golden yellow";
+  else if (body.includes("red")) outfitColor = "red";
+  else if (body.includes("blue")) outfitColor = "blue";
+  else if (body.includes("green")) outfitColor = "green";
+  else if (body.includes("purple")) outfitColor = "purple";
+  else if (body.includes("pink")) outfitColor = "pink";
+  else if (body.includes("orange")) outfitColor = "orange";
+  else if (body.includes("white")) outfitColor = "white";
+  else if (body.includes("black")) outfitColor = "black";
+
+  let hairStyle = "short swept hair";
+  if (hair.includes("mohawk")) hairStyle = "mohawk";
+  else if (hair.includes("afro")) hairStyle = "large afro";
+  else if (hair.includes("bun")) hairStyle = "hair bun";
+  else if (hair.includes("long")) hairStyle = "long flowing hair";
+  else if (hair.includes("bald")) hairStyle = "bald head";
+
+  let faceDetail = "";
+  if (face.includes("laser")) faceDetail = "glowing red laser eyes,";
+  else if (face.includes("glasses")) faceDetail = "wearing stylish glasses,";
+  else if (face.includes("mask")) faceDetail = "wearing a face mask,";
+
+  // GVC character description - very specific to the toy figure style
+  const charDesc = `a GVC vinyl toy figure character with ${skinColor} colored smooth plastic skin, enormous round egg-shaped head with tiny cute minimalist face (small dot eyes, tiny smile), ${hairStyle} in ${hairColor}, ${faceDetail} wearing a ${outfitColor} outfit with chunky proportions, short stubby neck, wide barrel chest, short thick arms and legs, chunky high-top sneakers, silver chain necklace. The character looks exactly like a smooth 3D vinyl collectible toy figure - glossy plastic texture, rounded edges, no sharp angles.`;
 
   // Style guidance
   const styleGuide = {
-    comic: "comic book art style, bold black outlines, halftone dot shading, vivid saturated colors, dynamic action lines, speech bubbles, Marvel/DC comic aesthetic",
-    noir: "noir comic book style, high contrast black and white with selective color, deep dramatic shadows, ink wash, film noir atmosphere",
-    manga: "manga comic style, clean precise linework, speed lines, dynamic angles, expressive character, Japanese manga aesthetic",
-    retro: "retro 1970s comic book style, slightly faded colors, gritty texture, old paper feel, vintage halftone dots, classic comic lettering",
+    comic: "comic book panel art, bold black outlines, halftone dot shading, vivid colors, dynamic composition, Marvel/DC comic style",
+    noir: "noir comic style, high contrast black and white with one accent color, dramatic ink shadows",
+    manga: "manga panel style, clean linework, speed lines, expressive action",
+    retro: "retro 1970s comic style, slightly faded warm colors, vintage halftone texture",
   }[style.id] || "comic book art style";
 
-  // Mood color palette
   const moodPalette = {
-    TRIUMPHANT: "golden and warm colors, dramatic lighting from above",
-    MYSTERIOUS: "deep purples and blues, misty atmosphere, mysterious shadows",
-    CHAOTIC: "explosive reds and oranges, dynamic diagonal composition",
-    MELANCHOLIC: "cool blues and grays, somber lighting, rain",
-    EUPHORIC: "bright neon colors, energy bursts, vibrant atmosphere",
-    DEFIANT: "high contrast, bold composition, dramatic backlighting",
-  }[mood] || "vibrant colors";
+    TRIUMPHANT: "golden warm dramatic lighting",
+    MYSTERIOUS: "deep purple blue misty atmosphere",
+    CHAOTIC: "explosive red orange energy",
+    MELANCHOLIC: "cool blue gray somber rain",
+    EUPHORIC: "bright neon vibrant energy bursts",
+    DEFIANT: "high contrast dramatic backlighting",
+  }[mood] || "vibrant lighting";
 
-  return `${styleGuide}, ${moodPalette}. Scene: ${panel.setting}. Action: ${panel.action}. The main character is ${charDesc}. The character is rendered as a chunky cartoon toy figure in the GVC NFT style - rounded head, expressive face, stylized proportions. Comic panel composition, cinematic framing. ${panel.dialogue ? `Speech bubble with text: "${panel.dialogue}"` : "No speech bubble."} ${panel.sfx ? `Sound effect text: "${panel.sfx}"` : ""} High quality comic book illustration. No text except dialogue/sfx specified.`;
+  return `${styleGuide}. ${moodPalette}. ${charDesc} Scene: ${panel.setting}. Action: ${panel.action}. ${panel.dialogue ? `Include speech bubble with text: "${panel.dialogue}"` : ""} ${panel.sfx ? `Include bold sound effect text: "${panel.sfx}"` : ""} Cinematic comic panel composition. High quality illustration.`;
 }
 
 // ── Generate story via Claude ─────────────────────────────────────────────────
