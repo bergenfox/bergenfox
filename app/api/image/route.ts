@@ -11,7 +11,7 @@ export async function POST(req: NextRequest) {
         "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`,
       },
       body: JSON.stringify({
-        model: "dall-e-3-2025-04-09",
+        model: gpt-image-1
         prompt,
         n: 1,
         size: "1024x1024",
