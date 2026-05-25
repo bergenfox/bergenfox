@@ -19,11 +19,16 @@ export async function POST(req: NextRequest) {
     });
 
     const data = await res.json();
-    if (data.error) {
-      return NextResponse.json({ error: data.error.message }, { status: 500 });
+    console.log("STATUS:", res.status);
+    console.log("RESPONSE:", JSON.stringify(data).slice(0, 500));
+
+    if (!res.ok) {
+      return NextResponse.json({ error: data?.error?.message || "OpenAI error", status: res.status }, { status: 500 });
     }
+
     return NextResponse.json({ url: data.data[0].url });
   } catch (err) {
+    console.log("CATCH ERROR:", String(err));
     return NextResponse.json({ error: String(err) }, { status: 500 });
   }
 }
