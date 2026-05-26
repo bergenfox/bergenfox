@@ -17,85 +17,99 @@ const STYLES = [
 
 const MOODS = ["TRIUMPHANT", "MYSTERIOUS", "CHAOTIC", "MELANCHOLIC", "EUPHORIC", "DEFIANT"];
 
-// ── Build DALL-E prompt for a panel ──────────────────────────────────────────
-function buildImagePrompt(panel: any, character: any, style: any, mood: string, traits: any) {
+// ── Build image prompt using NFT reference ─────────────────────────────────
+function buildImagePrompt(panel: any, style: any, mood: string, traits: any, characterName: string) {
   const type = (traits?.Type || "human").toLowerCase();
   const hair = (traits?.Hair || "short hair").toLowerCase();
   const body = (traits?.Body || "casual outfit").toLowerCase();
   const face = (traits?.Face || "").toLowerCase();
 
-  // Extract specific colors from traits
-  let skinColor = "warm beige";
-  if (type.includes("robot")) skinColor = "metallic silver-blue";
-  else if (type.includes("alien")) skinColor = "bright green";
-  else if (type.includes("zombie")) skinColor = "pale gray-green";
-  else if (type.includes("ape")) skinColor = "dark brown";
-  else if (type.includes("cat")) skinColor = "tan";
+  // Skin/head color
+  let skinDesc = "warm skin tone";
+  if (type.includes("robot")) skinDesc = "metallic silver iridescent";
+  else if (type.includes("alien")) skinDesc = "bright green";
+  else if (type.includes("zombie")) skinDesc = "pale gray-green";
+  else if (type.includes("ape")) skinDesc = "dark brown fur";
+  else if (type.includes("cat")) skinDesc = "tan fur";
+  else if (face.includes("iridescent") || face.includes("holographic")) skinDesc = "iridescent metallic pink";
+  else if (face.includes("gold")) skinDesc = "shiny gold metallic";
+  else if (face.includes("chrome")) skinDesc = "chrome silver";
 
-  let hairColor = "dark brown";
-  if (hair.includes("gold") || hair.includes("blonde")) hairColor = "golden yellow";
-  else if (hair.includes("blue")) hairColor = "bright blue";
-  else if (hair.includes("red")) hairColor = "bright red";
-  else if (hair.includes("pink")) hairColor = "hot pink";
-  else if (hair.includes("white") || hair.includes("silver")) hairColor = "white silver";
-  else if (hair.includes("purple")) hairColor = "purple";
-  else if (hair.includes("green")) hairColor = "green";
+  // Hair
+  let hairDesc = "short dark hair";
+  if (hair.includes("gold") || hair.includes("blonde")) hairDesc = "shiny gold hair";
+  else if (hair.includes("blue")) hairDesc = "bright blue hair";
+  else if (hair.includes("red")) hairDesc = "bright red hair";
+  else if (hair.includes("pink")) hairDesc = "pink hair";
+  else if (hair.includes("white")) hairDesc = "white silver hair";
+  else if (hair.includes("purple")) hairDesc = "purple hair";
+  else if (hair.includes("green")) hairDesc = "green hair";
+  else if (hair.includes("bun")) hairDesc = "hair styled in buns";
+  else if (hair.includes("mohawk")) hairDesc = "mohawk hairstyle";
+  else if (hair.includes("afro")) hairDesc = "large afro";
+  else if (hair.includes("long")) hairDesc = "long flowing hair";
+  else if (hair.includes("bald")) hairDesc = "bald head";
 
-  let outfitColor = "dark gray";
-  if (body.includes("gold") || body.includes("yellow")) outfitColor = "golden yellow";
-  else if (body.includes("red")) outfitColor = "red";
-  else if (body.includes("blue")) outfitColor = "blue";
-  else if (body.includes("green")) outfitColor = "green";
-  else if (body.includes("purple")) outfitColor = "purple";
-  else if (body.includes("pink")) outfitColor = "pink";
-  else if (body.includes("orange")) outfitColor = "orange";
-  else if (body.includes("white")) outfitColor = "white";
-  else if (body.includes("black")) outfitColor = "black";
+  // Outfit
+  let outfitDesc = "casual streetwear";
+  if (body.includes("suit")) outfitDesc = "gray business suit with black tie";
+  else if (body.includes("hoodie")) outfitDesc = "hoodie and joggers";
+  else if (body.includes("gold")) outfitDesc = "gold outfit";
+  else if (body.includes("blue")) outfitDesc = "blue outfit";
+  else if (body.includes("red")) outfitDesc = "red outfit";
+  else if (body.includes("purple")) outfitDesc = "purple outfit";
+  else if (body.includes("white")) outfitDesc = "white outfit";
+  else if (body.includes("black")) outfitDesc = "black outfit";
+  if (body.includes("chain") || hair.includes("chain")) outfitDesc += ", silver chain necklace";
 
-  let hairStyle = "short swept hair";
-  if (hair.includes("mohawk")) hairStyle = "mohawk";
-  else if (hair.includes("afro")) hairStyle = "large afro";
-  else if (hair.includes("bun")) hairStyle = "hair bun";
-  else if (hair.includes("long")) hairStyle = "long flowing hair";
-  else if (hair.includes("bald")) hairStyle = "bald head";
+  // Extra face details
+  let faceExtra = "";
+  if (face.includes("laser")) faceExtra = "with glowing red laser eyes";
+  else if (face.includes("glasses")) faceExtra = "wearing stylish glasses";
+  else if (face.includes("mask")) faceExtra = "wearing a face mask";
+  else if (face.includes("3d")) faceExtra = "wearing 3D glasses";
 
-  let faceDetail = "";
-  if (face.includes("laser")) faceDetail = "glowing red laser eyes,";
-  else if (face.includes("glasses")) faceDetail = "wearing stylish glasses,";
-  else if (face.includes("mask")) faceDetail = "wearing a face mask,";
+  // Style
+  const styleGuide: any = {
+    comic: "comic book illustration style, bold black outlines, halftone dot shading, vivid saturated colors, dynamic action composition, Marvel/DC comic aesthetic, flat graphic illustration",
+    noir: "noir comic book style, high contrast black and white with one accent color, dramatic ink shadows, film noir atmosphere",
+    manga: "manga comic panel style, clean precise linework, speed lines, dynamic angles, expressive Japanese manga aesthetic",
+    retro: "retro 1970s comic book style, slightly faded warm colors, gritty paper texture, vintage halftone dots",
+  };
 
-  // GVC character description - very specific to the toy figure style
-  const charDesc = `a GVC vinyl toy figure character with ${skinColor} colored smooth plastic skin, enormous round egg-shaped head with tiny cute minimalist face (small dot eyes, tiny smile), ${hairStyle} in ${hairColor}, ${faceDetail} wearing a ${outfitColor} outfit with chunky proportions, short stubby neck, wide barrel chest, short thick arms and legs, chunky high-top sneakers, silver chain necklace. The character looks exactly like a smooth 3D vinyl collectible toy figure - glossy plastic texture, rounded edges, no sharp angles.`;
+  const moodPalette: any = {
+    TRIUMPHANT: "golden warm dramatic lighting, heroic atmosphere",
+    MYSTERIOUS: "deep purple and blue misty atmosphere, shadows",
+    CHAOTIC: "explosive reds and oranges, energy bursts, diagonal composition",
+    MELANCHOLIC: "cool blue and gray, somber rainy atmosphere",
+    EUPHORIC: "bright neon colors, confetti, vibrant energy",
+    DEFIANT: "high contrast dramatic backlighting, bold stance",
+  };
 
-  // Style guidance
-  const styleGuide = {
-    comic: "comic book panel art, bold black outlines, halftone dot shading, vivid colors, dynamic composition, Marvel/DC comic style",
-    noir: "noir comic style, high contrast black and white with one accent color, dramatic ink shadows",
-    manga: "manga panel style, clean linework, speed lines, expressive action",
-    retro: "retro 1970s comic style, slightly faded warm colors, vintage halftone texture",
-  }[style.id] || "comic book art style";
+  // Core character description — very specific GVC style
+  const charDesc = `The main character is a GVC NFT vinyl toy figure named ${characterName}. They have: an oversized smooth egg-shaped round head (much bigger than the body) with ${skinDesc} smooth plastic/metallic surface, tiny minimalist face with just two small round dot eyes and a small curved smile, ${hairDesc}, ${faceExtra}, wearing ${outfitDesc}, chunky toy-like body proportions with short thick arms and legs, chunky high-top sneakers. The character looks exactly like a smooth 3D vinyl collectible toy rendered as a 2D comic illustration — rounded smooth forms, no realistic human features.`;
 
-  const moodPalette = {
-    TRIUMPHANT: "golden warm dramatic lighting",
-    MYSTERIOUS: "deep purple blue misty atmosphere",
-    CHAOTIC: "explosive red orange energy",
-    MELANCHOLIC: "cool blue gray somber rain",
-    EUPHORIC: "bright neon vibrant energy bursts",
-    DEFIANT: "high contrast dramatic backlighting",
-  }[mood] || "vibrant lighting";
+  const panelPrompt = `${styleGuide[style.id] || styleGuide.comic}. ${moodPalette[mood] || ""}. ${charDesc} Scene: ${panel.setting}. Action: ${panel.action}. ${panel.dialogue ? `Include a comic speech bubble containing exactly: "${panel.dialogue}"` : "No speech bubble."} ${panel.sfx ? `Include large bold sound effect text: "${panel.sfx}"` : ""} Cinematic comic panel framing. High quality comic book illustration. No additional text.`;
 
-  return `${styleGuide}. ${moodPalette}. ${charDesc} Scene: ${panel.setting}. Action: ${panel.action}. ${panel.dialogue ? `Include speech bubble with text: "${panel.dialogue}"` : ""} ${panel.sfx ? `Include bold sound effect text: "${panel.sfx}"` : ""} Cinematic comic panel composition. High quality illustration.`;
+  return panelPrompt;
 }
 
-// ── Generate story via Claude ─────────────────────────────────────────────────
+// ── Generate story via Claude ──────────────────────────────────────────────
 async function generateStory({ character, scene, style, mood, layout, traits }: any) {
   const traitStr = traits
     ? Object.entries(traits).map(([k, v]) => `${k}: ${v}`).join(", ")
     : "Unknown traits";
 
-  const systemPrompt = `You are a master graphic novel writer for the Good Vibes Club universe — a vibrant NFT world set in Vibetown. Generate vivid comic panel descriptions. Always return ONLY valid JSON.`;
-
-  const userPrompt = `Generate a ${layout.panels}-panel graphic novel sequence for this GVC character:
+  const response = await fetch("/api/generate", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      model: "claude-sonnet-4-20250514",
+      max_tokens: 1200,
+      system: `You are a master graphic novel writer for the Good Vibes Club NFT universe set in Vibetown. Write vivid, cinematic comic panel descriptions. Return ONLY valid JSON, no other text.`,
+      messages: [{
+        role: "user",
+        content: `Generate a ${layout.panels}-panel graphic novel for this GVC character:
 
 CHARACTER: ${character.name || `GVC #${character.id}`}
 TRAITS: ${traitStr}
@@ -103,31 +117,23 @@ SCENE: ${scene}
 STYLE: ${style.label}
 MOOD: ${mood}
 
-Return JSON:
+Return JSON exactly like this:
 {
-  "title": "STORY TITLE IN CAPS",
+  "title": "TITLE IN CAPS",
   "logline": "one gripping sentence",
   "panels": [
     {
       "number": 1,
-      "setting": "vivid visual description of environment and lighting (2-3 sentences)",
-      "action": "what is happening, camera angle, composition (2-3 sentences)",
-      "dialogue": "spoken line max 10 words or null",
-      "caption": "narrative caption max 8 words or null",
-      "sfx": "sound effect like BOOM or null"
+      "setting": "vivid 2-3 sentence description of environment, lighting, atmosphere",
+      "action": "what the character is doing, camera angle, composition (2-3 sentences)",
+      "dialogue": "spoken line under 10 words or null",
+      "caption": "narrative caption under 8 words or null",
+      "sfx": "sound effect word like BOOM or null"
     }
   ],
-  "epilogue": "one-line teaser for what comes next"
-}`;
-
-  const response = await fetch("/api/generate", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      model: "claude-sonnet-4-20250514",
-      max_tokens: 1000,
-      system: systemPrompt,
-      messages: [{ role: "user", content: userPrompt }],
+  "epilogue": "one-line teaser"
+}`
+      }],
     }),
   });
 
@@ -137,23 +143,24 @@ Return JSON:
   return JSON.parse(clean);
 }
 
-// ── Generate image via DALL-E 3 ───────────────────────────────────────────────
-async function generatePanelImage(prompt: string): Promise<string> {
+// ── Generate panel image ───────────────────────────────────────────────────
+async function generatePanelImage(prompt: string, nftImageUrl: string | null): Promise<string> {
   const response = await fetch("/api/image", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ prompt }),
+    body: JSON.stringify({ prompt, imageUrl: nftImageUrl }),
   });
   const data = await response.json();
   if (data.error) throw new Error(data.error);
   if (data.b64) return `data:image/png;base64,${data.b64}`;
   return data.url;
 }
-// ── Panel Card ────────────────────────────────────────────────────────────────
-function PanelCard({ panel, style, mood, traits, character, isWide }: any) {
+
+// ── Panel Card ─────────────────────────────────────────────────────────────
+function PanelCard({ panel, style, mood, traits, character, characterImg, isWide }: any) {
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const moodColors: any = {
     TRIUMPHANT: "#FFE048", MYSTERIOUS: "#6B4FFF", CHAOTIC: "#FF5F1F",
@@ -162,10 +169,10 @@ function PanelCard({ panel, style, mood, traits, character, isWide }: any) {
   const accent = moodColors[mood] || "#FFE048";
 
   useEffect(() => {
-    const prompt = buildImagePrompt(panel, character, style, mood, traits);
-    generatePanelImage(prompt)
+    const prompt = buildImagePrompt(panel, style, mood, traits, character?.name || `GVC #${character?.id}`);
+    generatePanelImage(prompt, characterImg)
       .then((url) => { setImageUrl(url); setLoading(false); })
-      .catch(() => { setError(true); setLoading(false); });
+      .catch((e) => { setError(e.message); setLoading(false); });
   }, []);
 
   return (
@@ -177,9 +184,7 @@ function PanelCard({ panel, style, mood, traits, character, isWide }: any) {
       display: "flex",
       flexDirection: "column",
       gridColumn: isWide ? "1 / -1" : undefined,
-      position: "relative",
     }}>
-      {/* Image panel */}
       <div style={{
         aspectRatio: isWide ? "21/9" : "1/1",
         background: "#050505",
@@ -187,85 +192,50 @@ function PanelCard({ panel, style, mood, traits, character, isWide }: any) {
         overflow: "hidden",
       }}>
         {loading && (
-          <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 12 }}>
+          <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 12, background: "#050505" }}>
             <div style={{ width: 32, height: 32, border: "2px solid #1F1F1F", borderTop: `2px solid ${accent}`, borderRadius: "50%", animation: "spin 0.9s linear infinite" }} />
-            <p style={{ color: "#333", fontSize: 10, letterSpacing: 2, fontFamily: "var(--font-mundial, sans-serif)" }}>GENERATING PANEL {panel.number}···</p>
+            <p style={{ color: "#333", fontSize: 10, letterSpacing: 2, fontFamily: "var(--font-mundial, sans-serif)", textTransform: "uppercase" }}>Generating panel {panel.number}···</p>
+            <p style={{ color: "#222", fontSize: 9, fontFamily: "var(--font-mundial, sans-serif)" }}>Using your NFT as character reference</p>
           </div>
         )}
         {error && (
-          <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <p style={{ color: "#333", fontSize: 11, fontFamily: "var(--font-mundial, sans-serif)" }}>Panel generation failed</p>
+          <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 8 }}>
+            <p style={{ color: "#444", fontSize: 11, fontFamily: "var(--font-mundial, sans-serif)" }}>Panel generation failed</p>
+            <p style={{ color: "#2a2a2a", fontSize: 9, fontFamily: "var(--font-mundial, sans-serif)", maxWidth: 200, textAlign: "center" }}>{error}</p>
           </div>
         )}
         {imageUrl && (
-          <img
-            src={imageUrl}
-            alt={`Panel ${panel.number}`}
-            style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
-          />
+          <img src={imageUrl} alt={`Panel ${panel.number}`} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
         )}
 
-        {/* Panel number badge */}
-        <div style={{
-          position: "absolute", top: 10, right: 10,
-          background: accent, color: "#050505",
-          width: 28, height: 28, borderRadius: 4,
-          display: "flex", alignItems: "center", justifyContent: "center",
-          fontFamily: "var(--font-brice, serif)", fontWeight: 900, fontSize: 14,
-        }}>
+        {/* Panel number */}
+        <div style={{ position: "absolute", top: 10, right: 10, background: accent, color: "#050505", width: 28, height: 28, borderRadius: 4, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "var(--font-brice, serif)", fontWeight: 900, fontSize: 14 }}>
           {panel.number}
         </div>
 
-        {/* Caption box */}
-        {panel.caption && (
-          <div style={{
-            position: "absolute", top: 0, left: 0, right: 0,
-            background: "rgba(5,5,5,0.85)", padding: "8px 12px",
-          }}>
-            <p style={{ fontFamily: "Georgia, serif", fontSize: 11, color: accent, fontStyle: "italic", margin: 0 }}>
-              {panel.caption}
-            </p>
-          </div>
-        )}
-
-        {/* SFX */}
-        {panel.sfx && (
-          <div style={{ position: "absolute", top: "30%", left: "10%", transform: "rotate(-8deg)" }}>
-            <p style={{
-              fontFamily: "var(--font-brice, serif)", fontWeight: 900, fontSize: 36,
-              color: accent, textShadow: "3px 3px 0 #000, -1px -1px 0 #000",
-              WebkitTextStroke: "2px #050505",
-            }}>
-              {panel.sfx}
-            </p>
+        {/* Caption */}
+        {panel.caption && imageUrl && (
+          <div style={{ position: "absolute", top: 0, left: 0, right: 0, background: "rgba(5,5,5,0.85)", padding: "8px 12px" }}>
+            <p style={{ fontFamily: "Georgia, serif", fontSize: 11, color: accent, fontStyle: "italic", margin: 0 }}>{panel.caption}</p>
           </div>
         )}
       </div>
 
-      {/* Director's notes */}
+      {/* Panel info */}
       <div style={{ padding: "14px 18px", borderTop: `1px solid ${accent}22` }}>
         {panel.dialogue && (
-          <div style={{
-            background: "#fff", borderRadius: 12, padding: "8px 14px",
-            marginBottom: 10, position: "relative", display: "inline-block",
-            maxWidth: "100%",
-          }}>
-            <p style={{ fontFamily: "Georgia, serif", fontSize: 12, color: "#111", margin: 0, fontWeight: 600 }}>
-              "{panel.dialogue}"
-            </p>
-            {/* Speech bubble tail */}
+          <div style={{ background: "#fff", borderRadius: 12, padding: "8px 14px", marginBottom: 10, display: "inline-block", maxWidth: "100%", position: "relative" }}>
+            <p style={{ fontFamily: "Georgia, serif", fontSize: 12, color: "#111", margin: 0, fontWeight: 600 }}>"{panel.dialogue}"</p>
             <div style={{ position: "absolute", bottom: -8, left: 20, width: 0, height: 0, borderLeft: "8px solid transparent", borderRight: "8px solid transparent", borderTop: "8px solid #fff" }} />
           </div>
         )}
-        <p style={{ fontFamily: "Georgia, serif", fontSize: 11, color: "#555", lineHeight: 1.7, margin: 0, fontStyle: "italic" }}>
-          {panel.setting}
-        </p>
+        <p style={{ fontFamily: "Georgia, serif", fontSize: 11, color: "#555", lineHeight: 1.7, margin: 0, fontStyle: "italic" }}>{panel.setting}</p>
       </div>
     </div>
   );
 }
 
-// ── Main Engine ───────────────────────────────────────────────────────────────
+// ── Main Component ─────────────────────────────────────────────────────────
 export default function GraphicNovelEngine() {
   const [tokenId, setTokenId] = useState("");
   const [character, setCharacter] = useState<any>(null);
@@ -302,17 +272,11 @@ export default function GraphicNovelEngine() {
     if (!scene.trim()) { setGenError("Describe a scene"); return; }
     setGenerating(true); setGenError(""); setStory(null);
     try {
-      const result = await generateStory({
-        character, scene, style: selectedStyle,
-        mood: selectedMood, layout: selectedLayout, traits: character.traits,
-      });
+      const result = await generateStory({ character, scene, style: selectedStyle, mood: selectedMood, layout: selectedLayout, traits: character.traits });
       setStory(result);
       setTimeout(() => resultRef.current?.scrollIntoView({ behavior: "smooth" }), 100);
-    } catch (e) {
-      setGenError("Story generation failed. Try again.");
-    } finally {
-      setGenerating(false);
-    }
+    } catch { setGenError("Story generation failed. Try again."); }
+    finally { setGenerating(false); }
   };
 
   const moodColors: any = {
@@ -323,33 +287,31 @@ export default function GraphicNovelEngine() {
   return (
     <div style={{ background: "#050505", minHeight: "100vh", color: "#fff", fontFamily: "var(--font-mundial, sans-serif)", paddingBottom: 80 }}>
       <style>{`
-        @keyframes shimmer { 0% { background-position: 0% center; } 100% { background-position: 200% center; } }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.4; } }
-        @keyframes fadeUp { from { opacity:0; transform:translateY(24px); } to { opacity:1; transform:translateY(0); } }
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        ::placeholder { color: #333; }
-        input:focus, textarea:focus { outline: none; border-color: #FFE04844 !important; }
-        ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-track { background: #050505; }
-        ::-webkit-scrollbar-thumb { background: #1F1F1F; border-radius: 2px; }
+        @keyframes shimmer { 0%{background-position:0% center} 100%{background-position:200% center} }
+        @keyframes spin { to{transform:rotate(360deg)} }
+        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+        @keyframes fadeUp { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:translateY(0)} }
+        * { box-sizing:border-box; margin:0; padding:0; }
+        ::placeholder{color:#333}
+        input:focus,textarea:focus{outline:none;border-color:#FFE04844!important}
+        ::-webkit-scrollbar{width:4px}
+        ::-webkit-scrollbar-track{background:#050505}
+        ::-webkit-scrollbar-thumb{background:#1F1F1F;border-radius:2px}
       `}</style>
 
       {/* Header */}
       <div style={{ borderBottom: "1px solid #1F1F1F", padding: "32px 40px 28px", background: "#080808" }}>
         <p style={{ color: "#FFE048", fontSize: 10, letterSpacing: 4, textTransform: "uppercase", marginBottom: 10, opacity: 0.7 }}>BERGENFOX · GVC UNIVERSE</p>
-        <h1 style={{ fontFamily: "var(--font-brice, serif)", fontWeight: 900, fontSize: 40, textTransform: "uppercase", letterSpacing: 1, background: "linear-gradient(135deg, #FFE048 0%, #FF6B9D 50%, #FFE048 100%)", backgroundSize: "200% auto", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text", animation: "shimmer 4s linear infinite" }}>
+        <h1 style={{ fontFamily: "var(--font-brice, serif)", fontWeight: 900, fontSize: 40, textTransform: "uppercase", background: "linear-gradient(135deg, #FFE048 0%, #FF6B9D 50%, #FFE048 100%)", backgroundSize: "200% auto", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text", animation: "shimmer 4s linear infinite" }}>
           GRAPHIC NOVEL ENGINE
         </h1>
-        <p style={{ color: "#444", fontSize: 13, marginTop: 8, letterSpacing: 0.5 }}>
-          AI-illustrated comic panels — your GVC character, your story, generated by DALL-E 3
-        </p>
+        <p style={{ color: "#444", fontSize: 13, marginTop: 8 }}>AI-illustrated comic panels — your actual NFT used as the character reference</p>
       </div>
 
       <div style={{ maxWidth: 1200, margin: "0 auto", padding: "48px 40px 0" }}>
         <div style={{ display: "grid", gridTemplateColumns: "340px 1fr", gap: 48, alignItems: "start" }}>
 
-          {/* ── Controls ── */}
+          {/* Controls */}
           <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
 
             {/* Character */}
@@ -364,8 +326,8 @@ export default function GraphicNovelEngine() {
               </div>
               {charError && <p style={{ color: "#FF5F1F", fontSize: 12, marginBottom: 8 }}>{charError}</p>}
               {character && (
-                <div style={{ background: "#0d0d0d", border: "1px solid #1F1F1F", borderRadius: 12, padding: 16, display: "flex", gap: 14, alignItems: "flex-start", animation: "fadeUp 0.3s ease" }}>
-                  {characterImg && <img src={characterImg} alt={character.name} style={{ width: 64, height: 64, borderRadius: 8, objectFit: "cover", flexShrink: 0 }} onError={(e) => (e.currentTarget.style.display = "none")} />}
+                <div style={{ background: "#0d0d0d", border: "1px solid #1F1F1F", borderRadius: 12, padding: 16, display: "flex", gap: 14, animation: "fadeUp 0.3s ease" }}>
+                  {characterImg && <img src={characterImg} alt={character.name} style={{ width: 72, height: 72, borderRadius: 8, objectFit: "cover", flexShrink: 0, border: "1px solid #FFE04833" }} onError={(e) => (e.currentTarget.style.display = "none")} />}
                   <div>
                     <p style={{ fontSize: 13, fontWeight: 700, color: "#FFE048", marginBottom: 6 }}>{character.name}</p>
                     {character.traits && Object.entries(character.traits).map(([k, v]: any) => (
@@ -377,12 +339,18 @@ export default function GraphicNovelEngine() {
                   </div>
                 </div>
               )}
+              {character && characterImg && (
+                <div style={{ marginTop: 10, background: "#0a0a14", border: "1px solid #FFE04822", borderRadius: 8, padding: "8px 12px" }}>
+                  <p style={{ fontSize: 10, color: "#FFE048", letterSpacing: 1 }}>✦ NFT IMAGE WILL BE USED AS CHARACTER REFERENCE</p>
+                  <p style={{ fontSize: 9, color: "#444", marginTop: 3 }}>Your actual NFT is sent to the AI as the visual reference for each panel</p>
+                </div>
+              )}
             </div>
 
             {/* Scene */}
             <div>
               <StepLabel number="02" label="THE SCENE" />
-              <textarea value={scene} onChange={(e) => setScene(e.target.value)} placeholder="Describe what happens — the conflict, setting, or moment you want to capture." rows={4}
+              <textarea value={scene} onChange={(e) => setScene(e.target.value)} placeholder="Describe what happens — the conflict, setting, or moment you want illustrated." rows={4}
                 style={{ width: "100%", background: "#0d0d0d", border: "1px solid #1F1F1F", borderRadius: 10, padding: "12px 14px", color: "#fff", fontSize: 13, lineHeight: 1.7, fontFamily: "var(--font-mundial, sans-serif)", resize: "vertical" }} />
             </div>
 
@@ -391,7 +359,7 @@ export default function GraphicNovelEngine() {
               <StepLabel number="03" label="PANEL LAYOUT" />
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
                 {PANEL_LAYOUTS.map((l) => (
-                  <button key={l.id} onClick={() => setSelectedLayout(l)} style={{ background: selectedLayout.id === l.id ? "#FFE04812" : "#0d0d0d", border: `1px solid ${selectedLayout.id === l.id ? "#FFE04844" : "#1F1F1F"}`, borderRadius: 10, padding: "12px 14px", textAlign: "left", cursor: "pointer", transition: "all 0.15s" }}>
+                  <button key={l.id} onClick={() => setSelectedLayout(l)} style={{ background: selectedLayout.id === l.id ? "#FFE04812" : "#0d0d0d", border: `1px solid ${selectedLayout.id === l.id ? "#FFE04844" : "#1F1F1F"}`, borderRadius: 10, padding: "12px 14px", textAlign: "left", cursor: "pointer" }}>
                     <div style={{ fontSize: 12, fontWeight: 800, letterSpacing: 1, color: selectedLayout.id === l.id ? "#FFE048" : "#888", marginBottom: 2 }}>{l.label}</div>
                     <div style={{ fontSize: 10, color: "#444" }}>{l.desc}</div>
                   </button>
@@ -404,7 +372,7 @@ export default function GraphicNovelEngine() {
               <StepLabel number="04" label="ART STYLE" />
               <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                 {STYLES.map((s) => (
-                  <button key={s.id} onClick={() => setSelectedStyle(s)} style={{ background: selectedStyle.id === s.id ? "#FFE04812" : "#0d0d0d", border: `1px solid ${selectedStyle.id === s.id ? "#FFE04844" : "#1F1F1F"}`, borderRadius: 8, padding: "10px 14px", display: "flex", justifyContent: "space-between", alignItems: "center", cursor: "pointer", transition: "all 0.15s" }}>
+                  <button key={s.id} onClick={() => setSelectedStyle(s)} style={{ background: selectedStyle.id === s.id ? "#FFE04812" : "#0d0d0d", border: `1px solid ${selectedStyle.id === s.id ? "#FFE04844" : "#1F1F1F"}`, borderRadius: 8, padding: "10px 14px", display: "flex", justifyContent: "space-between", alignItems: "center", cursor: "pointer" }}>
                     <span style={{ fontSize: 12, fontWeight: 800, letterSpacing: 1, color: selectedStyle.id === s.id ? "#FFE048" : "#888" }}>{s.label}</span>
                     <span style={{ fontSize: 10, color: "#444" }}>{s.desc}</span>
                   </button>
@@ -417,31 +385,28 @@ export default function GraphicNovelEngine() {
               <StepLabel number="05" label="MOOD" />
               <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
                 {MOODS.map((m) => (
-                  <button key={m} onClick={() => setSelectedMood(m)} style={{ background: selectedMood === m ? `${moodColors[m]}18` : "#0d0d0d", border: `1px solid ${selectedMood === m ? `${moodColors[m]}55` : "#1F1F1F"}`, borderRadius: 20, padding: "7px 14px", fontSize: 10, fontWeight: 800, letterSpacing: 1.5, color: selectedMood === m ? moodColors[m] : "#444", cursor: "pointer", transition: "all 0.15s" }}>
+                  <button key={m} onClick={() => setSelectedMood(m)} style={{ background: selectedMood === m ? `${moodColors[m]}18` : "#0d0d0d", border: `1px solid ${selectedMood === m ? `${moodColors[m]}55` : "#1F1F1F"}`, borderRadius: 20, padding: "7px 14px", fontSize: 10, fontWeight: 800, letterSpacing: 1.5, color: selectedMood === m ? moodColors[m] : "#444", cursor: "pointer" }}>
                     {m}
                   </button>
                 ))}
               </div>
             </div>
 
-            {/* Cost note */}
             <div style={{ background: "#0d0d0d", border: "1px solid #1F1F1F", borderRadius: 8, padding: "10px 14px" }}>
-              <p style={{ fontSize: 10, color: "#555", letterSpacing: 0.5 }}>
-                ✦ Each panel uses DALL-E 3 (~$0.04/panel). A 4-panel comic costs ~$0.16.
-              </p>
+              <p style={{ fontSize: 10, color: "#555" }}>✦ Each panel ~$0.04 with gpt-image-1. 4-panel comic ~$0.16.</p>
             </div>
 
             {genError && <p style={{ color: "#FF5F1F", fontSize: 12 }}>{genError}</p>}
 
             <button onClick={handleGenerate} disabled={generating || !character || !scene.trim()}
-              style={{ background: generating || !character || !scene.trim() ? "#111" : "#FFE048", border: "none", borderRadius: 12, padding: "16px 0", color: generating || !character || !scene.trim() ? "#333" : "#050505", fontSize: 14, fontWeight: 800, letterSpacing: 2, textTransform: "uppercase", cursor: generating || !character || !scene.trim() ? "not-allowed" : "pointer", width: "100%", transition: "all 0.2s" }}
+              style={{ background: generating || !character || !scene.trim() ? "#111" : "#FFE048", border: "none", borderRadius: 12, padding: "16px 0", color: generating || !character || !scene.trim() ? "#333" : "#050505", fontSize: 14, fontWeight: 800, letterSpacing: 2, textTransform: "uppercase", cursor: generating || !character || !scene.trim() ? "not-allowed" : "pointer", width: "100%" }}
               onMouseEnter={(e) => { if (!generating && character && scene.trim()) e.currentTarget.style.boxShadow = "0 0 32px #FFE04844"; }}
               onMouseLeave={(e) => { e.currentTarget.style.boxShadow = "none"; }}>
               {generating ? <span style={{ animation: "pulse 1s ease infinite", display: "inline-block" }}>SCRIPTING STORY···</span> : "GENERATE COMIC →"}
             </button>
           </div>
 
-          {/* ── Output ── */}
+          {/* Output */}
           <div ref={resultRef}>
             {!story && !generating && (
               <div style={{ background: "#080808", border: "1px dashed #1F1F1F", borderRadius: 16, padding: 60, textAlign: "center", minHeight: 400, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 16 }}>
@@ -461,27 +426,16 @@ export default function GraphicNovelEngine() {
 
             {story && !generating && (
               <div style={{ animation: "fadeUp 0.4s ease" }}>
-                {/* Story header */}
                 <div style={{ marginBottom: 28 }}>
                   <div style={{ display: "inline-block", background: `${moodColors[selectedMood]}18`, border: `1px solid ${moodColors[selectedMood]}33`, borderRadius: 20, padding: "4px 14px", fontSize: 10, fontWeight: 700, letterSpacing: 2, color: moodColors[selectedMood], marginBottom: 12 }}>
                     {selectedMood} · {selectedStyle.label} · {selectedLayout.label}
                   </div>
-                  <h2 style={{ fontFamily: "var(--font-brice, serif)", fontWeight: 900, fontSize: 28, textTransform: "uppercase", color: "#fff", letterSpacing: 1, marginBottom: 10 }}>
-                    {story.title}
-                  </h2>
+                  <h2 style={{ fontFamily: "var(--font-brice, serif)", fontWeight: 900, fontSize: 28, textTransform: "uppercase", color: "#fff", letterSpacing: 1, marginBottom: 10 }}>{story.title}</h2>
                   <p style={{ color: "#666", fontSize: 14, fontStyle: "italic", lineHeight: 1.6 }}>{story.logline}</p>
-                  <p style={{ color: "#333", fontSize: 11, marginTop: 8, letterSpacing: 1 }}>
-                    ✦ Generating {story.panels?.length} illustrated panels with DALL-E 3 — this may take 30-60 seconds
-                  </p>
+                  <p style={{ color: "#333", fontSize: 11, marginTop: 8, letterSpacing: 1 }}>✦ Generating {story.panels?.length} panels — your NFT image is the character reference</p>
                 </div>
 
-                {/* Panels grid */}
-                <div style={{
-                  display: "grid",
-                  gridTemplateColumns: selectedLayout.panels === 1 ? "1fr" : selectedLayout.panels === 2 ? "1fr 1fr" : "1fr 1fr",
-                  gap: 14,
-                  marginBottom: 24,
-                }}>
+                <div style={{ display: "grid", gridTemplateColumns: selectedLayout.panels === 1 ? "1fr" : "1fr 1fr", gap: 14, marginBottom: 24 }}>
                   {story.panels?.map((panel: any, i: number) => (
                     <PanelCard
                       key={i}
@@ -490,12 +444,12 @@ export default function GraphicNovelEngine() {
                       mood={selectedMood}
                       traits={character?.traits}
                       character={character}
+                      characterImg={characterImg}
                       isWide={selectedLayout.panels === 1 || (selectedLayout.panels === 3 && i === 0)}
                     />
                   ))}
                 </div>
 
-                {/* Epilogue */}
                 {story.epilogue && (
                   <div style={{ background: "#0d0d0d", border: "1px solid #1F1F1F", borderLeft: "3px solid #FFE048", borderRadius: "0 10px 10px 0", padding: "14px 20px", display: "flex", gap: 12, alignItems: "center", marginBottom: 20 }}>
                     <span style={{ color: "#FFE048", fontSize: 10, letterSpacing: 2, textTransform: "uppercase", whiteSpace: "nowrap" }}>NEXT TIME</span>
@@ -503,7 +457,7 @@ export default function GraphicNovelEngine() {
                   </div>
                 )}
 
-                <button onClick={handleGenerate} style={{ background: "transparent", border: "1px solid #1F1F1F", borderRadius: 10, padding: "12px 24px", color: "#555", fontSize: 12, fontWeight: 700, letterSpacing: 1, cursor: "pointer", transition: "all 0.2s" }}
+                <button onClick={handleGenerate} style={{ background: "transparent", border: "1px solid #1F1F1F", borderRadius: 10, padding: "12px 24px", color: "#555", fontSize: 12, fontWeight: 700, letterSpacing: 1, cursor: "pointer" }}
                   onMouseEnter={(e) => { e.currentTarget.style.borderColor = "#FFE04844"; e.currentTarget.style.color = "#FFE048"; }}
                   onMouseLeave={(e) => { e.currentTarget.style.borderColor = "#1F1F1F"; e.currentTarget.style.color = "#555"; }}>
                   ↺ REGENERATE
