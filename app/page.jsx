@@ -1,4 +1,3 @@
-"use client";
 import { useState, useEffect, useRef } from "react";
 
 // ── Ember Particle Component ──────────────────────────────────────────────────
@@ -191,7 +190,7 @@ function Nav({ onMute, muted }) {
             textTransform: "uppercase",
           }}
         >
-          BERGENFOX
+          GVC ANIMATION
         </span>
       </div>
 
@@ -308,7 +307,7 @@ function Hero() {
           letterSpacing: "-1px",
         }}
       >
-        BERGENFOX
+        GVC ANIMATION
       </h1>
 
       <h2
@@ -422,7 +421,7 @@ function About() {
           WHERE VIBES BECOME LEGEND
         </h2>
         <p style={{ color: "#777", fontFamily: "var(--font-mundial, sans-serif)", fontSize: 15, lineHeight: 1.9, marginBottom: 16 }}>
-          Bergenfox is the official lore engine for the Good Vibes Club universe. 6,969 Citizens
+          GVC Animation is the official lore engine for the Good Vibes Club universe. 6,969 Citizens
           of Vibetown, each with their own traits, history, and untold stories — now given voice
           through graphic novel panels and animated short films.
         </p>
@@ -509,10 +508,10 @@ const features = [
   {
     icon: "🎬",
     title: "3D SHORT FILMS",
-    desc: "Transform your lore into animated short stories. Place your GVC character in a live Three.js Vibetown environment with full camera and animation control.",
+    desc: "Transform your lore into animated short stories. Place your GVC character in a live Vibetown environment with full camera and animation control. Coming soon.",
     accent: "#FFE048",
-    href: "/scene-viewer",
-    live: true,
+    href: null,
+    live: false,
   },
   {
     icon: "📖",
@@ -912,7 +911,7 @@ function Footer() {
               marginBottom: 12,
             }}
           >
-            BERGENFOX
+            GVC ANIMATION
           </div>
           <p
             style={{
@@ -1036,7 +1035,6 @@ export default function App() {
         fontFamily: "var(--font-mundial, sans-serif)",
       }}
     >
-      <StatsBar />
       <Nav onMute={() => setMuted(!muted)} muted={muted} />
       <Hero />
       <About />
