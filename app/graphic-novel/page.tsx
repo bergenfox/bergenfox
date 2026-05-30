@@ -19,79 +19,70 @@ const MOODS = ["TRIUMPHANT", "MYSTERIOUS", "CHAOTIC", "MELANCHOLIC", "EUPHORIC",
 
 // ── Build image prompt using NFT reference ─────────────────────────────────
 function buildImagePrompt(panel: any, style: any, mood: string, traits: any, characterName: string) {
-  const type = (traits?.Type || "human").toLowerCase();
-  const hair = (traits?.Hair || "short hair").toLowerCase();
-  const body = (traits?.Body || "casual outfit").toLowerCase();
+  const type = (traits?.Type || "").toLowerCase();
+  const hair = (traits?.Hair || "").toLowerCase();
+  const body = (traits?.Body || "").toLowerCase();
   const face = (traits?.Face || "").toLowerCase();
 
-  // Skin/head color
-  let skinDesc = "warm skin tone";
-  if (type.includes("robot")) skinDesc = "metallic silver iridescent";
-  else if (type.includes("alien")) skinDesc = "bright green";
-  else if (type.includes("zombie")) skinDesc = "pale gray-green";
-  else if (type.includes("ape")) skinDesc = "dark brown fur";
-  else if (type.includes("cat")) skinDesc = "tan fur";
-  else if (face.includes("iridescent") || face.includes("holographic")) skinDesc = "iridescent metallic pink";
-  else if (face.includes("gold")) skinDesc = "shiny gold metallic";
-  else if (face.includes("chrome")) skinDesc = "chrome silver";
+  // Build hyper-literal head/skin description from Type trait
+  let headDesc = "smooth plastic rounded head";
+  if (type.includes("gradient")) {
+    const colors = type.replace("gradient", "").trim();
+    headDesc = `smooth plastic rounded head with a ${colors} gradient color`;
+  } else if (type.includes("robot")) headDesc = "metallic silver robot head";
+  else if (type.includes("alien")) headDesc = "bright green alien head";
+  else if (type.includes("ape")) headDesc = "dark brown ape head";
+  else if (type.includes("cat")) headDesc = "cat head";
+  else headDesc = `smooth plastic rounded head colored ${type}`;
 
-  // Hair
-  let hairDesc = "short dark hair";
-  if (hair.includes("gold") || hair.includes("blonde")) hairDesc = "shiny gold hair";
-  else if (hair.includes("blue")) hairDesc = "bright blue hair";
-  else if (hair.includes("red")) hairDesc = "bright red hair";
-  else if (hair.includes("pink")) hairDesc = "pink hair";
-  else if (hair.includes("white")) hairDesc = "white silver hair";
-  else if (hair.includes("purple")) hairDesc = "purple hair";
-  else if (hair.includes("green")) hairDesc = "green hair";
-  else if (hair.includes("bun")) hairDesc = "hair styled in buns";
-  else if (hair.includes("mohawk")) hairDesc = "mohawk hairstyle";
-  else if (hair.includes("afro")) hairDesc = "large afro";
-  else if (hair.includes("long")) hairDesc = "long flowing hair";
-  else if (hair.includes("bald")) hairDesc = "bald head";
+  // Exact hair description
+  const hairDesc = traits?.Hair ? `${traits.Hair} hairstyle` : "short hair";
 
-  // Outfit
-  let outfitDesc = "casual streetwear";
-  if (body.includes("suit")) outfitDesc = "gray business suit with black tie";
-  else if (body.includes("hoodie")) outfitDesc = "hoodie and joggers";
-  else if (body.includes("gold")) outfitDesc = "gold outfit";
-  else if (body.includes("blue")) outfitDesc = "blue outfit";
-  else if (body.includes("red")) outfitDesc = "red outfit";
-  else if (body.includes("purple")) outfitDesc = "purple outfit";
-  else if (body.includes("white")) outfitDesc = "white outfit";
-  else if (body.includes("black")) outfitDesc = "black outfit";
-  if (body.includes("chain") || hair.includes("chain")) outfitDesc += ", silver chain necklace";
+  // Exact outfit description  
+  const bodyDesc = traits?.Body ? `wearing a ${traits.Body}` : "casual outfit";
 
-  // Extra face details
-  let faceExtra = "";
-  if (face.includes("laser")) faceExtra = "with glowing red laser eyes";
-  else if (face.includes("glasses")) faceExtra = "wearing stylish glasses";
-  else if (face.includes("mask")) faceExtra = "wearing a face mask";
-  else if (face.includes("3d")) faceExtra = "wearing 3D glasses";
+  // Exact face description
+  let faceDesc = "";
+  if (face.includes("wink")) faceDesc = "winking with one eye closed, small smile";
+  else if (face.includes("laser")) faceDesc = "glowing red laser eyes";
+  else if (face.includes("glasses")) faceDesc = `wearing ${traits.Face}`;
+  else if (face.includes("smile")) faceDesc = "big smile";
+  else if (face.includes("angry")) faceDesc = "angry expression";
+  else faceDesc = traits?.Face ? `${traits.Face} expression` : "happy expression";
 
   // Style
   const styleGuide: any = {
-    comic: "comic book illustration style, bold black outlines, halftone dot shading, vivid saturated colors, dynamic action composition, Marvel/DC comic aesthetic, flat graphic illustration",
-    noir: "noir comic book style, high contrast black and white with one accent color, dramatic ink shadows, film noir atmosphere",
-    manga: "manga comic panel style, clean precise linework, speed lines, dynamic angles, expressive Japanese manga aesthetic",
-    retro: "retro 1970s comic book style, slightly faded warm colors, gritty paper texture, vintage halftone dots",
+    comic: "comic book illustration, bold black outlines, halftone dot shading, vivid saturated colors, Marvel/DC comic panel style",
+    noir: "noir comic style, high contrast black and white with one accent color, dramatic shadows",
+    manga: "manga panel style, clean linework, speed lines, dynamic angles",
+    retro: "retro 1970s comic style, faded warm colors, vintage halftone texture",
   };
 
   const moodPalette: any = {
-    TRIUMPHANT: "golden warm dramatic lighting, heroic atmosphere",
-    MYSTERIOUS: "deep purple and blue misty atmosphere, shadows",
-    CHAOTIC: "explosive reds and oranges, energy bursts, diagonal composition",
-    MELANCHOLIC: "cool blue and gray, somber rainy atmosphere",
-    EUPHORIC: "bright neon colors, confetti, vibrant energy",
-    DEFIANT: "high contrast dramatic backlighting, bold stance",
+    TRIUMPHANT: "golden warm dramatic lighting",
+    MYSTERIOUS: "deep purple misty shadows",
+    CHAOTIC: "explosive reds and oranges",
+    MELANCHOLIC: "cool blue rainy atmosphere",
+    EUPHORIC: "bright neon vibrant energy",
+    DEFIANT: "high contrast dramatic backlighting",
   };
 
-  // Core character description — very specific GVC style
-  const charDesc = `The main character is a GVC NFT vinyl toy figure named ${characterName}. They have: an oversized smooth egg-shaped round head (much bigger than the body) with ${skinDesc} smooth plastic/metallic surface, tiny minimalist face with just two small round dot eyes and a small curved smile, ${hairDesc}, ${faceExtra}, wearing ${outfitDesc}, chunky toy-like body proportions with short thick arms and legs, chunky high-top sneakers. The character looks exactly like a smooth 3D vinyl collectible toy rendered as a 2D comic illustration — rounded smooth forms, no realistic human features.`;
+  return `${styleGuide[style.id] || styleGuide.comic}. ${moodPalette[mood] || ""}. 
 
-  const panelPrompt = `${styleGuide[style.id] || styleGuide.comic}. ${moodPalette[mood] || ""}. ${charDesc} Scene: ${panel.setting}. Action: ${panel.action}. ${panel.dialogue ? `Include a comic speech bubble containing exactly: "${panel.dialogue}"` : "No speech bubble."} ${panel.sfx ? `Include large bold sound effect text: "${panel.sfx}"` : ""} Cinematic comic panel framing. High quality comic book illustration. No additional text.`;
+The main character is a GVC NFT toy figure named ${characterName} with these EXACT visual traits:
+- HEAD: ${headDesc} — oversized round egg-shaped head, much bigger than body, smooth glossy plastic surface, minimalist tiny face
+- HAIR: ${hairDesc}
+- FACE EXPRESSION: ${faceDesc} — tiny dot eyes, small curved mouth, minimalist cute face
+- OUTFIT: ${bodyDesc}
+- BODY: chunky toy figure proportions, short thick arms and legs, chunky sneakers, silver chain necklace
+- STYLE: smooth 3D vinyl collectible toy rendered as 2D comic illustration — rounded forms, glossy surfaces, no realistic human features
 
-  return panelPrompt;
+Scene: ${panel.setting}
+Action: ${panel.action}
+${panel.dialogue ? `Speech bubble text: "${panel.dialogue}"` : ""}
+${panel.sfx ? `Sound effect: "${panel.sfx}"` : ""}
+
+Cinematic comic panel composition. The character must look exactly like a GVC NFT toy figure. High quality comic illustration.`;
 }
 
 // ── Generate story via Claude ──────────────────────────────────────────────
