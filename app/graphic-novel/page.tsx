@@ -262,7 +262,7 @@ export default function GraphicNovelEngine() {
       const token = meta[String(id)];
       if (!token) throw new Error("Not found");
       setCharacter({ id, name: token.name, traits: token.traits });
-      if (token.image) setCharacterImg(token.image.replace("ipfs://", "https://ipfs.io/ipfs/"));
+      setCharacterImg(`https://goodvibesclub.ai/portraits/gvc-${id}.jpg`);
     } catch { setCharError("Could not load character."); }
     finally { setLoadingChar(false); }
   };
